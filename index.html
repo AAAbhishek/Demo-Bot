@@ -1,0 +1,127 @@
+<html>
+<head>
+<script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.4.0/annyang.min.js"></script>
+<script>
+/*
+Ask exactlty the same query..
+1> tell me the price of ______ ?
+2> ______ than "number" gb ?
+3> compare ______ and ______ ?
+4> show features of _______ ?
+*/
+if(annyang){
+	var commands = {
+	  'tell me the price of *q':function(q){
+			alert ('tell me the price of *q');
+			q = q.split(" ")[0];
+			showPrice(q);
+	  },
+	  '*q more than :no gb':function(q,no){
+		showSamsungPhone(no);
+	  },
+	  'compare *p1 and *p2':function(p1,p2){
+			comparePhones(p1,p2);
+	  },
+	  'show me features of *q':function(q){
+			showFeatures(q);
+	  }
+	};
+	annyang.addCommands(commands);
+		annyang.start();
+}
+/**
+* 
+*/
+function showPrice(name){
+	ajaxCall("price.php?q="+encodeURIComponent(name),function(data){
+		document.getElementById('data').innerHTML = data;
+	});
+}
+
+function showFeatures(name){
+	ajaxCall("features.php?q="+encodeURIComponent(name),function(data){
+		document.getElementById('data').innerHTML = data;
+	});
+}
+
+function showSamsungPhone(no){
+	ajaxCall("ram.php?q="+encodeURIComponent(no),function(data){
+		document.getElementById('data').innerHTML = data;
+	});
+}
+
+function comparePhones(p1,p2){
+	ajaxCall("compare.php?p1="+encodeURIComponent(p1)+"&p2="+encodeURIComponent(p2),function(data){
+			document.getElementById('data').innerHTML = data;
+		});
+	
+}
+function ajaxCall(url,callback){
+	var xml = new XMLHttpRequest();
+	xml.open('GET',url,true);
+	xml.send();
+	xml.onreadystatechange = function(){
+		if(xml.readyState == 4 && xml.status == 200){
+			alert (callback(xml.responseText));
+		}else if(xml.readyState == 4){
+			alert(callback(xml.statusText));	
+		}
+	}
+}
+function parseInput(){
+	var com = document.getElementById('q').value;
+	if(com.indexOf("Tell me the price of ")>=0){
+		var temp = com.replace("Tell me the price of ",''); 
+		ajaxCall("price.php?q="+encodeURIComponent(temp),function(data){
+			document.getElementById('data').innerHTML = data;
+		});
+	}else if(com.indexOf("Show me features of")>=0){
+		var temp = com.replace("Show me features of ",'');
+		ajaxCall("features.php?q="+encodeURIComponent(temp),function(data){
+			document.getElementById('data').innerHTML = data;
+		});
+	}else if(com.indexOf("compare")>=0){
+		var temp = com.replace("compare ",'');
+		ajaxCall("compare.php?p1="+encodeURIComponent(temp)+"&p2="+encodeURIComponent(temp),function(data){
+			document.getElementById('data').innerHTML = data;
+		});
+		ajaxCall("compare.php?p2="+encodeURIComponent(temp),function(data){
+			document.getElementById('data').innerHTML = data;
+		});
+	}else{
+		var temp = com.replace("more than",'');
+		ajaxCall("ram.php?q="+encodeURIComponent(temp),function(data){
+			document.getElementById('data').innerHTML = data;
+		});
+	}
+}	
+</script>
+</head>
+<body>
+<input type = "text" placeholder = "Ask your Query" id = "q">
+<button onclick = "parseInput()">Search</button><br/>
+<br/><div id = "data"></div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
